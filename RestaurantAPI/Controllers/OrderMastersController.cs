@@ -24,7 +24,7 @@ namespace RestaurantAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderMaster>>> GetOrderMasters()
         {
-            return await _context.OrderMasters.Include(x=>x.Customer).ToListAsync();
+            return await _context.OrderMasters.Include(x => x.Customer).ToListAsync();
         }
 
         // GET: api/OrderMasters/5
@@ -61,10 +61,10 @@ namespace RestaurantAPI.Controllers
                                          a.CustomerId,
                                          a.PMethod,
                                          a.GTotal,
-                                         deletedOrderItemIds ="",
-                                         orderDetails= orderDetails
+                                         deletedOrderItemIds = "",
+                                         orderDetails = orderDetails
                                      }
-                                     ).FirstOrDefaultAsync() ;
+                                     ).FirstOrDefaultAsync();
 
             if (orderMaster == null)
             {
@@ -72,6 +72,7 @@ namespace RestaurantAPI.Controllers
             }
 
             return Ok(orderMaster);
+
         }
 
         // PUT: api/OrderMasters/5
@@ -86,6 +87,24 @@ namespace RestaurantAPI.Controllers
 
             _context.Entry(orderMaster).State = EntityState.Modified;
 
+            // existing food items  & newly added food items 
+            foreach (OrderDetail item in orderMaster.OrderDetails)
+            {
+                if (item.OrderDetailId == 0)
+                    _context.OrderDetails.Add(item);
+                else
+                    _context.Entry(item).State = EntityState.Modified;
+            }
+            // deleted food item 
+            if (orderMaster.DeletedOrderItemIds != null) {
+
+                foreach (var i in orderMaster.DeletedOrderItemIds.Split(',').Where(x => x != ""))
+                {
+                    OrderDetail y = _context.OrderDetails.Find(Convert.ToInt32(i));
+                    _context.OrderDetails.Remove(y);
+                }
+            }
+           
             try
             {
                 await _context.SaveChangesAsync();

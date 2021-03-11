@@ -13,7 +13,7 @@ namespace RestaurantAPI.Models
         public long OrderMasterId { get; set; }
         [Column(TypeName="nvarchar(75)")]
         public string OrderNumber { get; set; }
-
+        
         public int CustomerId { get; set; }
         // We added this line below to set the foreign keys
         public Customer Customer { get; set; }
@@ -23,7 +23,10 @@ namespace RestaurantAPI.Models
 
         public decimal GTotal { get; set; }
 
-        public List<OrderDetail> OrderDetail { get; set; }
+        public List<OrderDetail> OrderDetails { get; set; }
+
+        [NotMapped]
+        public String  DeletedOrderItemIds { get; set; }
 
     }
 }
